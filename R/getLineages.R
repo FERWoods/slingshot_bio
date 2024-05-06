@@ -96,7 +96,8 @@ setMethod(f = "getLineages",
         start.clus = NULL, end.clus = NULL,
         dist.method = "slingshot", use.median = FALSE,
         omega = FALSE, omega_scale = 1.5, 
-        times = NULL, ...){
+        times = NULL, 
+        distmat = NULL, ...){
 
         X <- as.matrix(data)
         clusterLabels <- as.matrix(clusterLabels)
@@ -192,12 +193,13 @@ setMethod(f = "getLineages",
             lineages <- list('Lineage1' = clusters)
         }else{
             use <- which(rowSums(clusterLabels) > 0)
-            g <- createClusterMST(x = X[use, ,drop=FALSE], 
+            g <- createClusterMST_adapt(x = X[use, ,drop=FALSE], 
                                   clusters = clusterLabels[use, ,drop=FALSE],
                                   outgroup = omega, outscale = omega_scale,
                                   endpoints = end.clus, 
                                   dist.method = dist.method, 
-                                  use.median = use.median, ...)
+                                  use.median = use.median,
+                                  distmat = distmat, ...)
             
             
             # select root nodes (one per connected component of g)
