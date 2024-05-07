@@ -117,7 +117,7 @@
 #'   \code{\link[princurve]{principal_curve}} objects.}
 #'   \item{\code{slingParams}} {Additional parameters used for fitting
 #'   simultaneous principal curves.}}
-#'   
+#'
 #' @references Hastie, T., and Stuetzle, W. (1989). "Principal Curves."
 #'   \emph{Journal of the American Statistical Association}, 84:502--516.
 #'
@@ -191,24 +191,25 @@ setMethod(f = "getCurves",
                 approx_points <- FALSE
             }
         }
-
         # DEFINE SMOOTHER FUNCTION
-        smootherFcn <- switch(smoother, loess = function(lambda, xj,
-            w = NULL, ...){
-            loess(xj ~ lambda, weights = w, ...)$fitted
-        }, smooth.spline = function(lambda, xj, w = NULL, ..., df = 5,
-            tol = 1e-4){
-            # fit <- smooth.spline(lambda, xj, w = w, ..., df = df,
-            #                      tol = tol, keep.data = FALSE)
-            fit <- tryCatch({
-                smooth.spline(lambda, xj, w = w, ..., df = df,
-                    tol = tol, keep.data = FALSE)
-            }, error = function(e){
-                smooth.spline(lambda, xj, w = w, ..., df = df,
-                    tol = tol, keep.data = FALSE, spar = 1)
-            })
-            predict(fit, x = lambda)$y
-        })
+        smootherFcn <- switch(smoother,
+                              loess = function(lambda, xj, w = NULL, ...){
+                                loess(xj ~ lambda, weights = w, ...)$fitted
+                              },
+                              smooth.spline = function(lambda, xj, w = NULL, ..., df = 5, tol = 1e-4){
+                                my_smooth_spline <- function(...) {
+                                  args <- list(...)
+                                  args <- args[!names(args) %in% c("distmat")]
+                                  do.call(stats::smooth.spline, args)
+                                }
+                                fit <- tryCatch({
+                                  my_smooth_spline(lambda, xj, w = w, ..., df = df, tol = tol, keep.data = FALSE)
+                                }, error = function(e){
+                                  my_smooth_spline(lambda, xj, w = w, ..., df = df, tol = tol, keep.data = FALSE, spar = 1)
+                                })
+                                predict(fit, x = lambda)$y
+                              })
+
 
         # remove unclustered cells
         X.original <- X
@@ -593,7 +594,7 @@ setMethod(f = "getCurves",
         rownames(pst) <- rownames(pto)
         colnames(pst) <- colnames(pto)
         assay(pto, 'pseudotime') <- pst
-        
+
         scw <- vapply(pcurves, function(pc) { pc$w },
                           rep(0, nrow(X)))
         rownames(scw) <- rownames(pto)
