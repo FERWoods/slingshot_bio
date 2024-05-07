@@ -1,4 +1,4 @@
-Package: slingshot_adapt
+Package: slingshotadapt
 Title: Tools for ordering single-cell sequencing
 Version: 2.7.0
 Description: Provides functions for inferring continuous, branching 
