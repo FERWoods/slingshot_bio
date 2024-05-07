@@ -1,5 +1,5 @@
 #' Minimum spanning trees on cluster centroids
-#'
+#' @export
 #' Build a MST where each node is a cluster centroid and 
 #' each edge is weighted by the Euclidean distance between centroids.
 #' This represents the most parsimonious explanation for a particular trajectory
