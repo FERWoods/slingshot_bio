@@ -103,7 +103,7 @@
 #' As an example, a normalized gain of unity for a particular edge means that its removal
 #' requires an alternative path that increases the distance travelled by that edge's length.
 #'
-#' The normalized gain is reported as the \code{"gain"} attribute in the edges of the MST from \code{\link{createClusterMST_adapt_adapt}}.
+#' The normalized gain is reported as the \code{"gain"} attribute in the edges of the MST from \code{\link{createClusterMST_adapt}}.
 #' Note that the \code{"weight"} attribute represents the edge length.
 #'
 #' @section Distance measures:
@@ -165,20 +165,20 @@
 #' cells <- cells + rnorm(length(cells), sd=0.5)
 #'
 #' # Creating the MST:
-#' mst <- createClusterMST_adapt_adapt(cells, clusters)
+#' mst <- createClusterMST_adapt(cells, clusters)
 #' plot(mst)
 #'
 #' # We could also do it on the centers:
-#' mst2 <- createClusterMST_adapt_adapt(centers, clusters=NULL)
+#' mst2 <- createClusterMST_adapt(centers, clusters=NULL)
 #' plot(mst2)
 #'
 #' # Works if the expression matrix is in a SE:
 #' library(SummarizedExperiment)
 #' se <- SummarizedExperiment(t(cells), colData=DataFrame(group=clusters))
-#' mst3 <- createClusterMST_adapt_adapt(se, se$group, assay.type=1)
+#' mst3 <- createClusterMST_adapt(se, se$group, assay.type=1)
 #' plot(mst3)
 #' 
-#' @name createClusterMST_adapt_adapt
+#' @name createClusterMST_adapt
 NULL
 
 #################################################
@@ -456,27 +456,27 @@ NULL
 #################################################
 
 #' @export
-#' @rdname createClusterMST_adapt_adapt
-setGeneric("createClusterMST_adapt_adapt", function(x, ...) standardGeneric("createClusterMST_adapt_adapt"))
+#' @rdname createClusterMST_adapt
+setGeneric("createClusterMST_adapt", function(x, ...) standardGeneric("createClusterMST_adapt"))
 
 #' @export
-#' @rdname createClusterMST_adapt_adapt
-setMethod("createClusterMST_adapt_adapt", "ANY", .create_cluster_mst)
+#' @rdname createClusterMST_adapt
+setMethod("createClusterMST_adapt", "ANY", .create_cluster_mst)
 
 #' @export
-#' @rdname createClusterMST_adapt_adapt
+#' @rdname createClusterMST_adapt
 #' @importFrom Matrix t
 #' @importFrom SummarizedExperiment assay
 #' @importClassesFrom SummarizedExperiment SummarizedExperiment
-setMethod("createClusterMST_adapt_adapt", "SummarizedExperiment", function(x, ..., assay.type="logcounts") {
+setMethod("createClusterMST_adapt", "SummarizedExperiment", function(x, ..., assay.type="logcounts") {
     .create_cluster_mst(t(assay(x, assay.type)), ...)
 })
 
 #' @export
-#' @rdname createClusterMST_adapt_adapt
+#' @rdname createClusterMST_adapt
 #' @importFrom SingleCellExperiment reducedDim colLabels
 #' @importClassesFrom SingleCellExperiment SingleCellExperiment
-setMethod("createClusterMST_adapt_adapt", "SingleCellExperiment", function(x, clusters=colLabels(x, onAbsence="error"), ..., use.dimred=NULL) {
+setMethod("createClusterMST_adapt", "SingleCellExperiment", function(x, clusters=colLabels(x, onAbsence="error"), ..., use.dimred=NULL) {
     if (!is.null(use.dimred)) {
         .create_cluster_mst(reducedDim(x, use.dimred), clusters=clusters, ...)
     } else {
