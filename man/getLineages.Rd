@@ -26,6 +26,7 @@ getLineages(data, clusterLabels, ...)
   omega = FALSE,
   omega_scale = 1.5,
   times = NULL,
+  distmat = NULL,
   ...
 )
 

@@ -1,6 +1,5 @@
 #' Minimum spanning trees on cluster centroids
-#' @export
-#' Build a MST where each node is a cluster centroid and 
+#' Build a MST where each node is a cluster centroid and
 #' each edge is weighted by the Euclidean distance between centroids.
 #' This represents the most parsimonious explanation for a particular trajectory
 #' and has the advantage of being directly intepretable with respect to any pre-existing clusters.
@@ -17,9 +16,9 @@
 #' In this case, no transposition is performed.
 #'
 #' Alternatively, if \code{clusters=NULL}, a numeric matrix of coordinates for cluster centroids,
-#' where each row represents a cluster and each column represents a dimension 
+#' where each row represents a cluster and each column represents a dimension
 #' Each row should be named with the cluster name.
-#' This mode can also be used with assays/matrices extracted from SummarizedExperiments and SingleCellExperiments. 
+#' This mode can also be used with assays/matrices extracted from SummarizedExperiments and SingleCellExperiments.
 #' @param ... For the generic, further arguments to pass to the specific methods.
 #'
 #' For the SummarizedExperiment method, further arguments to pass to the ANY method.
@@ -30,11 +29,11 @@
 #' specifying the cluster identity for each cell in \code{x}.
 #' If \code{NULL}, \code{x} is assumed to already contain coordinates for the cluster centroids.
 #'
-#' Alternatively, a matrix with number of rows equal to \code{nrow(x)}, 
+#' Alternatively, a matrix with number of rows equal to \code{nrow(x)},
 #' containing soft assignment weights for each cluster (column).
 #' All weights should be positive and sum to 1 for each row.
 #' @param columns A character, logical or integer vector specifying the columns of \code{x} to use.
-#' If \code{NULL}, all provided columns are used by default. 
+#' If \code{NULL}, all provided columns are used by default.
 #' @param outgroup A logical scalar indicating whether an outgroup should be inserted to split unrelated trajectories.
 #' Alternatively, a numeric scalar specifying the distance threshold to use for this splitting.
 #' @param outscale A numeric scalar specifying the scaling of the median distance between centroids,
@@ -57,7 +56,7 @@
 #' By default, the cluster centroid is defined by taking the mean value across all of its cells for each dimension.
 #' If \code{clusters} is a matrix, a weighted mean is used instead.
 #' This treats the column of weights as fractional identities of each cell to the corresponding cluster.
-#' 
+#'
 #' If \code{use.median=TRUE}, the median across all cells in each cluster is used to compute the centroid coordinate for each dimension.
 #' (With a matrix-like \code{clusters}, a weighted median is calculated.)
 #' This protects against outliers but is less stable than the mean.
@@ -75,7 +74,7 @@
 #' computing the median edge length in that MST, and then scaling it by \code{outscale}.
 #' This adapts to the magnitude of the distances and the internal structure of the dataset
 #' while also providing some margin for variation across cluster pairs.
-#' The default \code{outscale=1.5} will break any branch that is 50\% longer than the median length. 
+#' The default \code{outscale=1.5} will break any branch that is 50\% longer than the median length.
 #'
 #' Alternatively, \code{outgroup} can be set to a numeric scalar in which case it is used directly as \eqn{\omega}.
 #'
@@ -114,18 +113,18 @@
 #' This accounts for the cluster \dQuote{width} by reducing the effective distances between broad clusters.
 #' \item With \code{"scaled.full"}, we repeat this scaling with the full covariance matrix.
 #' This accounts for the cluster shape by considering correlations between dimensions, but cannot be computed when there are more cells than dimensions.
-#' \item The \code{"slingshot"} option will typically be equivalent to the \code{"scaled.full"} option, 
-#' but switches to \code{"scaled.diag"} in the presence of small clusters (fewer cells than dimensions in the reduced dimensional space). 
+#' \item The \code{"slingshot"} option will typically be equivalent to the \code{"scaled.full"} option,
+#' but switches to \code{"scaled.diag"} in the presence of small clusters (fewer cells than dimensions in the reduced dimensional space).
 #' \item For \code{"mnn"}, see the more detailed explanation below.
 #' }
-#' 
-#' If \code{clusters} is a matrix with \code{"scaled.diag"}, \code{"scaled.full"} and \code{"slingshot"}, 
+#'
+#' If \code{clusters} is a matrix with \code{"scaled.diag"}, \code{"scaled.full"} and \code{"slingshot"},
 #' a weighted covariance is computed to account for the assignment ambiguity.
 #' In addition, a warning will be raised if \code{use.median=TRUE} for these choices of \code{dist.method};
 #' the Mahalanobis distances will not be correctly computed when the centers are medians instead of means.
 #'
 #' @section Alternative distances with MNN pairs:
-#' While distances between centroids are usually satisfactory for gauging cluster \dQuote{closeness}, 
+#' While distances between centroids are usually satisfactory for gauging cluster \dQuote{closeness},
 #' they do not consider the behavior at the boundaries of the clusters.
 #' Two clusters that are immediately adjacent (i.e., intermingling at the boundaries) may have a large distance between their centroids
 #' if the clusters themselves span a large region of the coordinate space.
@@ -153,7 +152,7 @@
 #' \emph{Nucleic Acids Res.} 44, e117
 #'
 #' Street K et al. (2018).
-#' Slingshot: cell lineage and pseudotime inference for single-cell transcriptomics. 
+#' Slingshot: cell lineage and pseudotime inference for single-cell transcriptomics.
 #' \emph{BMC Genomics}, 477.
 #'
 #' @examples
@@ -177,7 +176,7 @@
 #' se <- SummarizedExperiment(t(cells), colData=DataFrame(group=clusters))
 #' mst3 <- createClusterMST_adapt(se, se$group, assay.type=1)
 #' plot(mst3)
-#' 
+#'
 #' @name createClusterMST_adapt
 NULL
 
@@ -186,12 +185,12 @@ NULL
 #' @importFrom igraph graph.adjacency minimum.spanning.tree delete_vertices E V V<-
 #' @importFrom stats median dist
 .create_cluster_mst <- function(x, clusters, use.median=FALSE, outgroup=FALSE, outscale=1.5, endpoints=NULL, columns=NULL, distmat=NULL,
-    dist.method = c("simple", "scaled.full", "scaled.diag", "slingshot", "mnn"), 
-    with.mnn=FALSE, mnn.k=50, BNPARAM=NULL, BPPARAM=NULL) 
+    dist.method = c("simple", "scaled.full", "scaled.diag", "slingshot", "mnn"),
+    with.mnn=FALSE, mnn.k=50, BNPARAM=NULL, BPPARAM=NULL)
 {
   if(is.null(distmat)){
     if (!is.null(columns)) {
-        x <- x[,columns,drop=FALSE]                
+        x <- x[,columns,drop=FALSE]
     }
 
     if (!is.null(clusters)) {
@@ -231,7 +230,7 @@ NULL
       } else {
       dmat = distmat
     }
-    # Ensure all off-diagonal distances are positive, as zero weights = no edge. 
+    # Ensure all off-diagonal distances are positive, as zero weights = no edge.
     lower.limit <- min(dmat[dmat > 0])
     dmat[] <- pmax(dmat, lower.limit[1] / 1e6)
     diag(dmat) <- 0
@@ -252,7 +251,7 @@ NULL
         }
 
         old.d <- rownames(dmat)
-        dmat <- rbind(cbind(dmat, outgroup), outgroup) 
+        dmat <- rbind(cbind(dmat, outgroup), outgroup)
         dmat[length(dmat)] <- 0
         special.name <- strrep("x", max(nchar(old.d))+1L)
         rownames(dmat) <- colnames(dmat) <- c(old.d, special.name)
@@ -274,7 +273,7 @@ NULL
     }
     V(mst)$coordinates <- coord.list[names(V(mst))]
 
-    mst 
+    mst
 }
 
 #' @importFrom stats median
@@ -314,7 +313,7 @@ NULL
             right <- collated[[s]]
             righti <- indices[[s]]
 
-            stuff <- BiocNeighbors::findMutualNN(left, right, k1=mnn.k, 
+            stuff <- BiocNeighbors::findMutualNN(left, right, k1=mnn.k,
                 BNINDEX1=lefti, BNINDEX2=righti, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
             dist2 <- rowSums((left[stuff$first,,drop=FALSE] - right[stuff$second,,drop=FALSE])^2)
             distances[f,s] <- sqrt(median(dist2))
@@ -341,12 +340,12 @@ NULL
             return(NULL)
         } else if (distance > best.stats$distance) {
             return(NULL)
-        } 
-        
+        }
+
         current <- rownames(available)[i]
         self.used <- which(path == current)
 
-        if (length(self.used) == 1) { 
+        if (length(self.used) == 1) {
             # Endpoint-to-endpoint dyads should be reciprocated,
             # with no distance added (if they are allowed to exist).
             reciprocal <- rownames(available)[self.used]

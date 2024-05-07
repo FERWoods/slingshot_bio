@@ -44,13 +44,13 @@ The \code{SlingshotDataSet} class holds data relevant for
 }
 \section{Methods (by generic)}{
 \itemize{
-\item \code{show}: a short summary of a \code{SlingshotDataSet}
+\item \code{show(SlingshotDataSet)}: a short summary of a \code{SlingshotDataSet}
 object.
 
-\item \code{reducedDim}: returns the matrix representing the reduced
+\item \code{reducedDim(x = SlingshotDataSet, type = ANY)}: returns the matrix representing the reduced
 dimensional dataset.
-}}
 
+}}
 \section{Slots}{
 
 \describe{
