@@ -3,6 +3,7 @@
 S3method(lines,SlingshotDataSet)
 S3method(pairs,SlingshotDataSet)
 S3method(plot,SlingshotDataSet)
+export(createClusterMST)
 export(SlingshotDataSet)
 export(as.PseudotimeOrdering)
 export(as.SlingshotDataSet)
