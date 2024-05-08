@@ -124,7 +124,7 @@
 #'   with exploratory analysis while having little to no impact on the final
 #'   curves. To disable this behavior and construct curves with the maximum
 #'   number of points, set \code{approx_points = FALSE}.
-#'   
+#'
 #' @details The \code{extend} argument determines how to construct the
 #'   piece-wise linear curve used to initiate the recursive algorithm. The
 #'   initial curve is always based on the lines between cluster centers and if
@@ -160,7 +160,7 @@
 #'
 #' @references Hastie, T., and Stuetzle, W. (1989). "Principal Curves."
 #'   \emph{Journal of the American Statistical Association}, 84:502-516.
-#'   
+#'
 #' @references Street, K., et al. (2018). "Slingshot: cell lineage and
 #'   pseudotime inference for single-cell transcriptomics." \emph{BMC Genomics},
 #'   19:477.
@@ -206,12 +206,12 @@ setMethod(f = "slingshot",
                                 approx_points = NULL,
                                 smoother = 'smooth.spline',
                                 shrink.method = 'cosine',
-                                allow.breaks = TRUE, ...){
+                                allow.breaks = TRUE, distmat=NULL, ...){
               pto <- getLineages(data, clusterLabels, reducedDim = reducedDim,
                                  start.clus = start.clus, end.clus = end.clus,
-                                 dist.method = dist.method, 
+                                 dist.method = dist.method,
                                  use.median = use.median, omega = omega,
-                                 omega_scale = omega_scale, times = times)
+                                 omega_scale = omega_scale, times = times, distmat=distmat)
               pto <- getCurves(pto,
                                shrink = shrink, extend = extend,
                                reweight = reweight, reassign = reassign,
@@ -244,12 +244,12 @@ setMethod(f = "slingshot",
                                 approx_points = NULL,
                                 smoother = 'smooth.spline',
                                 shrink.method = 'cosine',
-                                allow.breaks = TRUE, ...){
+                                allow.breaks = TRUE, distmat=NULL, ...){
               pto <- getLineages(data, clusterLabels, reducedDim = reducedDim,
                                  start.clus = start.clus, end.clus = end.clus,
-                                 dist.method = dist.method, 
+                                 dist.method = dist.method,
                                  use.median = use.median, omega = omega,
-                                 omega_scale = omega_scale, times = times)
+                                 omega_scale = omega_scale, times = times, distmat=distmat)
               pto <- getCurves(pto,
                                shrink = shrink, extend = extend,
                                reweight = reweight, reassign = reassign,
@@ -347,7 +347,7 @@ setMethod(f = "slingshot",
                                 approx_points = NULL,
                                 smoother = 'smooth.spline',
                                 shrink.method = 'cosine',
-                                allow.breaks = TRUE, ...){
+                                allow.breaks = TRUE, distmat=NULL, ...){
               # SETUP
               # determine the cluster labels and reducedDim matrix
               if(is.null(reducedDim)){
@@ -391,7 +391,7 @@ setMethod(f = "slingshot",
                       }
                   }
                   if(length(clusterLabels)>1){
-                      if(!is.null(dim(clusterLabels)) && 
+                      if(!is.null(dim(clusterLabels)) &&
                          length(dim(clusterLabels)) > 1 &&
                          all(dim(clusterLabels) > 1)){
                           cl <- as.matrix(clusterLabels)
@@ -405,7 +405,7 @@ setMethod(f = "slingshot",
               pto <- slingshot(data = rd, clusterLabels = cl,
                                reducedDim = NULL,
                                start.clus = start.clus, end.clus = end.clus,
-                               dist.method = dist.method, 
+                               dist.method = dist.method,
                                use.median = use.median, omega = omega,
                                omega_scale = omega_scale, times = times,
                                shrink = shrink, extend = extend,
@@ -414,7 +414,7 @@ setMethod(f = "slingshot",
                                stretch = stretch, smoother = smoother,
                                approx_points = approx_points,
                                shrink.method = shrink.method,
-                               allow.breaks = allow.breaks, ...)
+                               allow.breaks = allow.breaks, distmat=distmat,  ...)
               # combine slingshot output with SCE
               sce <- data
               colData(sce)$slingshot <- pto
@@ -449,7 +449,7 @@ setMethod(f = "slingshot",
                                 approx_points = NULL,
                                 smoother = 'smooth.spline',
                                 shrink.method = 'cosine',
-                                allow.breaks = TRUE, ...){
+                                allow.breaks = TRUE, distmat=NULL, ...){
               # SETUP
               # determine the cluster labels and reducedDim matrix
               if(is.null(reducedDim)){
@@ -502,7 +502,7 @@ setMethod(f = "slingshot",
               pto <- slingshot(data = rd, clusterLabels = cl,
                                reducedDim = NULL,
                                start.clus = start.clus, end.clus = end.clus,
-                               dist.method = dist.method, 
+                               dist.method = dist.method,
                                use.median = use.median, omega = omega,
                                omega_scale = omega_scale, times = times,
                                shrink = shrink, extend = extend,
@@ -511,7 +511,7 @@ setMethod(f = "slingshot",
                                stretch = stretch, smoother = smoother,
                                approx_points = approx_points,
                                shrink.method = shrink.method,
-                               allow.breaks = allow.breaks, ...)
+                               allow.breaks = allow.breaks, distmat=distmat, ...)
               # combine slingshot output with SCE
               sce <- data
               colData(sce)$slingshot <- pto

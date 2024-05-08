@@ -184,52 +184,56 @@ NULL
 
 #' @importFrom igraph graph.adjacency minimum.spanning.tree delete_vertices E V V<-
 #' @importFrom stats median dist
-.create_cluster_mst <- function(x, clusters, use.median=FALSE, outgroup=FALSE, outscale=1.5, endpoints=NULL, columns=NULL, distmat=NULL,
-    dist.method = c("simple", "scaled.full", "scaled.diag", "slingshot", "mnn"),
+.create_cluster_mst <- function(x, clusters, use.median=FALSE, outgroup=FALSE, outscale=1.5, endpoints=NULL, columns=NULL,
+    dist.method = c("simple", "scaled.full", "scaled.diag", "slingshot", "mnn"), distmat=distmat,
     with.mnn=FALSE, mnn.k=50, BNPARAM=NULL, BPPARAM=NULL)
 {
-  if(is.null(distmat)){
+  if (!is.null(distmat)) {
+    dmat <- distmat
+  } else {
     if (!is.null(columns)) {
-        x <- x[,columns,drop=FALSE]
+      x <- x[,columns,drop=FALSE]
     }
 
     if (!is.null(clusters)) {
-        FUN <- if (use.median) rowmedian else rowmean
-        centers <- FUN(x, clusters)
+      FUN <- if (use.median) rowmedian else rowmean
+      centers <- FUN(x, clusters)
     } else if (is.null(rownames(x))) {
-        stop("'x' must have row names corresponding to cluster names")
+      stop("'x' must have row names corresponding to cluster names")
     } else {
-        centers <- as.matrix(x)
+      centers <- as.matrix(x)
     }
 
     dist.method <- match.arg(dist.method)
     if (with.mnn) {
-        .Deprecated(old="with.mnn=TRUE", new="dist.method=\"mnn\"")
-        dist.method <- "mnn"
+      .Deprecated(old="with.mnn=TRUE", new="dist.method=\"mnn\"")
+      dist.method <- "mnn"
     }
 
     if (dist.method == "simple") {
-        dmat <- dist(centers)
-        dmat <- as.matrix(dmat)
+      dmat <- dist(centers)
+      dmat <- as.matrix(dmat)
     } else {
-        if (is.null(clusters)) {
-            stop("'clusters' must be specified when 'dist.method!=\"simple\"'")
-        }
+      if (is.null(clusters)) {
+        stop("'clusters' must be specified when 'dist.method!=\"simple\"'")
+      }
 
-        if (dist.method == "mnn") {
-            dmat <- .create_mnn_distance_matrix(x, clusters, mnn.k=mnn.k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
-        } else {
-            if (use.median) {
-                # Distances not really intepretable as Mahalanobis distances anymore.
-                warning("'use.median=TRUE' with 'dist.method=\"", dist.method, "\"' may yield unpredictable results")
-            }
-            use.full <- (dist.method == "scaled.full" || (dist.method == "slingshot" && min(table(clusters)) > ncol(x)))
-            dmat <- .dist_clusters_scaled(x, clusters, centers=centers, full=use.full)
-        }
-    }
+      if (dist.method == "mnn") {
+        dmat <- .create_mnn_distance_matrix(x, clusters, mnn.k=mnn.k, BNPARAM=BNPARAM, BPPARAM=BPPARAM)
       } else {
-      dmat = distmat
+        if (use.median) {
+          warning("'use.median=TRUE' with 'dist.method=\"", dist.method, "\"' may yield unpredictable results")
+        }
+        use.full <- (dist.method == "scaled.full" || (dist.method == "slingshot" && min(table(clusters)) > ncol(x)))
+        dmat <- .dist_clusters_scaled(x, clusters, centers=centers, full=use.full)
+      }
     }
+  }
+  cat(print(dmat))
+  cat(print("inbetween"))
+
+  cat(print(distmat))
+
     # Ensure all off-diagonal distances are positive, as zero weights = no edge.
     lower.limit <- min(dmat[dmat > 0])
     dmat[] <- pmax(dmat, lower.limit[1] / 1e6)
@@ -241,6 +245,9 @@ NULL
         allow.dyads <- !isFALSE(outgroup) || nrow(dmat) == 2
         dmat <- .enforce_endpoints(dmat, endpoints, allow.dyads=allow.dyads)
     }
+
+
+    cat(print(distmat))
 
     if (!isFALSE(outgroup)) {
         if (!is.numeric(outgroup)) {

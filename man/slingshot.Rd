@@ -37,6 +37,7 @@ slingshot(data, clusterLabels, ...)
   smoother = "smooth.spline",
   shrink.method = "cosine",
   allow.breaks = TRUE,
+  distmat = NULL,
   ...
 )
 
@@ -62,6 +63,7 @@ slingshot(data, clusterLabels, ...)
   smoother = "smooth.spline",
   shrink.method = "cosine",
   allow.breaks = TRUE,
+  distmat = NULL,
   ...
 )
 
@@ -97,6 +99,7 @@ slingshot(data, clusterLabels, ...)
   smoother = "smooth.spline",
   shrink.method = "cosine",
   allow.breaks = TRUE,
+  distmat = NULL,
   ...
 )
 
@@ -122,6 +125,7 @@ slingshot(data, clusterLabels, ...)
   smoother = "smooth.spline",
   shrink.method = "cosine",
   allow.breaks = TRUE,
+  distmat = NULL,
   ...
 )
 }

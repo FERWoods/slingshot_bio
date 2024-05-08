@@ -95,8 +95,8 @@ setMethod(f = "getLineages",
     definition = function(data, clusterLabels, reducedDim = NULL,
         start.clus = NULL, end.clus = NULL,
         dist.method = "slingshot", use.median = FALSE,
-        omega = FALSE, omega_scale = 1.5, 
-        times = NULL, 
+        omega = FALSE, omega_scale = 1.5,
+        times = NULL,
         distmat = NULL, ...){
 
         X <- as.matrix(data)
@@ -168,7 +168,7 @@ setMethod(f = "getLineages",
         if(omega < 0){
             stop('omega must be non-negative')
         }
-        
+
         # set up, remove unclustered cells (-1's)
         clusterLabels <- clusterLabels[, colnames(clusterLabels) != -1,
             drop = FALSE]
@@ -180,28 +180,28 @@ setMethod(f = "getLineages",
         if(!is.null(end.clus)){
             end.clus <- as.character(end.clus)
         }
- 
+
         ### make the MST / forest (multiple MSTs)
         if(nclus == 1){
             dmat <- matrix(0)
             rownames(dmat) <- colnames(dmat) <- clusters
-            g <- igraph::graph_from_adjacency_matrix(dmat, 
-                                                     mode = "undirected", 
+            g <- igraph::graph_from_adjacency_matrix(dmat,
+                                                     mode = "undirected",
                                                      weighted = TRUE)
             igraph::V(g)$coordinates <- list(clusters = colMeans(X))
-            
+
             lineages <- list('Lineage1' = clusters)
         }else{
             use <- which(rowSums(clusterLabels) > 0)
-            g <- createClusterMST_adapt(x = X[use, ,drop=FALSE], 
+            g <- createClusterMST_adapt(x = X[use, ,drop=FALSE],
                                   clusters = clusterLabels[use, ,drop=FALSE],
                                   outgroup = omega, outscale = omega_scale,
-                                  endpoints = end.clus, 
-                                  dist.method = dist.method, 
+                                  endpoints = end.clus,
+                                  dist.method = dist.method,
                                   use.median = use.median,
                                   distmat = distmat, ...)
-            
-            
+
+
             # select root nodes (one per connected component of g)
             forest <- igraph::decompose(g)
             starts <- vapply(forest, function(tree){
@@ -209,7 +209,7 @@ setMethod(f = "getLineages",
                     return(names(igraph::V(tree)))
                 }
                 if(any(start.clus %in% names(igraph::V(tree)))){
-                    return(start.clus[start.clus %in% 
+                    return(start.clus[start.clus %in%
                                           names(igraph::V(tree))][1])
                 }
                 # otherwise, pick root based on highest average length of
@@ -225,18 +225,18 @@ setMethod(f = "getLineages",
                 }, 0)
                 return(names(avg.lineage.length)[which.max(avg.lineage.length)])
             }, FUN.VALUE = '')
-            
-            lineages <- TrajectoryUtils::defineMSTPaths(g, roots = starts, 
+
+            lineages <- TrajectoryUtils::defineMSTPaths(g, roots = starts,
                                                         times = times,
-                                                    clusters = clusterLabels, 
+                                                    clusters = clusterLabels,
                                                     use.median = use.median)
-            
+
             # sort by number of clusters included
             lineages <- lineages[order(vapply(lineages, length, 0),
                                        decreasing = TRUE)]
             names(lineages) <- paste('Lineage',seq_along(lineages),sep='')
         }
-        
+
         lineageControl <- list()
         first <- unique(vapply(lineages,function(l){ l[1] },''))
         last <- unique(vapply(lineages,function(l){ l[length(l)] },''))
@@ -258,19 +258,19 @@ setMethod(f = "getLineages",
         }, rep(0,nrow(X))) # weighting matrix
         rownames(W) <- rownames(X)
         colnames(W) <- names(lineages)
-        
+
         # empty pseudotime matrix (to be filled by getCurves)
         pst <- W
         pst[,] <- NA
-        
-        out <- PseudotimeOrdering(pathStats = list(pseudotime = pst, 
+
+        out <- PseudotimeOrdering(pathStats = list(pseudotime = pst,
                                                    weights = W),
                                   metadata = list(lineages = lineages,
                                                   mst = g,
                                                   slingParams = lineageControl))
         cellData(out)$reducedDim <- X
         cellData(out)$clusterLabels <- clusterLabels
-        
+
         validObject(out)
         return(out)
     }
@@ -337,7 +337,7 @@ setMethod(f = "getLineages",
                                 clusterLabels = "ANY"),
           definition = function(data, clusterLabels, ...){
               return(getLineages(data = cellData(data)$reducedDim,
-                                 clusterLabels = cellData(data)$clusterLabels, 
+                                 clusterLabels = cellData(data)$clusterLabels,
                                  ...))
           })
 
